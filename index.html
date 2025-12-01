@@ -37,8 +37,13 @@
     </header>
 
     <div class="game-container">
-        <iframe class="game-frame" src="https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html" allowfullscreen></iframe>
-    </div>
+      <iframe id="gameFrame" class="game-frame"
+  src="https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html" allowfullscreen></iframe>
+      <button onclick="document.getElementById('gameFrame').requestFullscreen()" style="display:block;margin:15px
+  auto;padding:12px
+  30px;font-size:16px;background:#00d9ff;color:#000;border:none;border-radius:8px;cursor:pointer;">FULL
+  SCREEN</button>
+  </div>
 
     <div class="content">
         <h2>About Rooftop Run</h2>
