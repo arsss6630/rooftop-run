@@ -57,14 +57,6 @@
         }
         .control-btn:hover { background: #00d9ff; color: #0f3460; }
 
-        /* Rotate Hint (Mobile) */
-        .rotate-hint {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 1000;
-            flex-direction: column; justify-content: center; align-items: center; color: white;
-        }
-        .rotate-icon { font-size: 4rem; margin-bottom: 20px; animation: rotate 1.5s ease-in-out infinite; }
-        @keyframes rotate { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
 
         /* Content */
         .content { max-width: 900px; margin: 30px auto; padding: 0 20px; }
@@ -93,30 +85,18 @@
             .features { grid-template-columns: 1fr; }
         }
 
-        /* Landscape Mobile - Fullscreen Game */
-        @media (max-width: 900px) and (orientation: landscape) {
-            body.game-started { overflow: hidden; }
+        /* Mobile - Game Started: Hide other content */
+        @media (max-width: 900px) {
             body.game-started header, body.game-started .content, body.game-started footer, body.game-started .controls { display: none; }
+            body.game-started { overflow: hidden; }
             body.game-started .game-wrapper { padding: 0; max-width: 100%; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; }
             body.game-started .game-container { border-radius: 0; width: 100%; height: 100%; }
             body.game-started .game-container::before { display: none; }
             body.game-started .game-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         }
-
-        /* Portrait Mobile - Show Rotate Hint */
-        @media (max-width: 768px) and (orientation: portrait) {
-            body.game-started .rotate-hint { display: flex; }
-        }
     </style>
 </head>
 <body>
-    <!-- Rotate Hint for Mobile -->
-    <div class="rotate-hint">
-        <div class="rotate-icon">📱</div>
-        <p>Rotate your device for better experience</p>
-        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Or tap anywhere to continue</p>
-    </div>
-
     <header>
         <h1>Run 3</h1>
         <p class="subtitle">Endless Space Running Game</p>
@@ -181,38 +161,12 @@
         const overlay = document.getElementById('startOverlay');
         const gameFrame = document.getElementById('gameFrame');
         const gameUrl = 'https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html';
-        const rotateHint = document.querySelector('.rotate-hint');
 
         // Click to start game
         overlay.addEventListener('click', function() {
-            // Load game immediately
             gameFrame.src = gameUrl;
             overlay.classList.add('hidden');
             document.body.classList.add('game-started');
-
-            // Try to unlock audio
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                audioCtx.resume();
-                // Create a short silent sound
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                gainNode.gain.value = 0;
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.1);
-            } catch(e) {}
-
-            // On mobile, check orientation
-            if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
-                rotateHint.style.display = 'flex';
-            }
-        });
-
-        // Dismiss rotate hint on tap
-        rotateHint.addEventListener('click', function() {
-            rotateHint.style.display = 'none';
         });
 
         // Fullscreen function
@@ -226,25 +180,6 @@
                 if (document.exitFullscreen) document.exitFullscreen();
             }
         }
-
-        // Handle orientation change and resize
-        function checkOrientation() {
-            if (!document.body.classList.contains('game-started')) return;
-
-            const isPortrait = window.innerHeight > window.innerWidth;
-            const isMobile = window.innerWidth <= 900 || window.innerHeight <= 500;
-
-            if (isMobile && isPortrait) {
-                rotateHint.style.display = 'flex';
-            } else {
-                rotateHint.style.display = 'none';
-            }
-        }
-
-        window.addEventListener('orientationchange', function() {
-            setTimeout(checkOrientation, 100);
-        });
-        window.addEventListener('resize', checkOrientation);
     </script>
 </body>
 </html>
