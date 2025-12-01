@@ -2,88 +2,225 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rooftop Run - Play Free Online Parkour Game</title>
-    <meta name="description" content="Play Rooftop Run online for free. Jump from roof to roof in this thrilling 3D parkour running game. Avoid obstacles and enemies!">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Run 3 - Play Free Online Running Game</title>
+    <meta name="description" content="Play Run 3 online for free. Run through space tunnels in this addictive 3D running game. Avoid holes and obstacles!">
     <link rel="canonical" href="https://rooftoprun.xyz">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #eee; }
-        header { background: linear-gradient(135deg, #00d9ff, #0f3460); color: white; padding: 20px; text-align: center; }
-        h1 { font-size: 2rem; margin-bottom: 10px; }
-        .subtitle { font-size: 1.1rem; opacity: 0.9; }
-        .game-container { max-width: 960px; margin: 20px auto; padding: 0 20px; }
-        .game-frame { width: 100%; height: 600px; border: none; border-radius: 12px; box-shadow: 0 4px 30px rgba(0,217,255,0.3); }
-        .content { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-        h2 { color: #00d9ff; margin: 30px 0 15px; font-size: 1.5rem; }
-        p { line-height: 1.8; margin-bottom: 15px; color: #ccc; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
-        .feature { background: #16213e; padding: 20px; border-radius: 12px; border: 1px solid #0f3460; }
-        .feature h3 { color: #00d9ff; margin-bottom: 10px; }
-        .feature p { color: #aaa; margin-bottom: 0; }
-        ul { margin: 15px 0; padding-left: 20px; color: #ccc; }
-        li { margin-bottom: 8px; line-height: 1.6; }
-        footer { background: #0f0f1a; color: #888; text-align: center; padding: 30px; margin-top: 50px; }
+
+        /* Header */
+        header { background: linear-gradient(135deg, #00d9ff, #0f3460); color: white; padding: 15px; text-align: center; }
+        h1 { font-size: 1.8rem; margin-bottom: 5px; }
+        .subtitle { font-size: 1rem; opacity: 0.9; }
+
+        /* Game Container */
+        .game-wrapper { max-width: 960px; margin: 0 auto; padding: 15px; }
+        .game-container { position: relative; width: 100%; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 30px rgba(0,217,255,0.3); }
+
+        /* Aspect Ratio Box */
+        .game-container::before { content: ''; display: block; padding-top: 66.67%; }
+
+        /* Game Frame */
+        .game-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        /* Start Overlay */
+        .start-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 10;
+        }
+        .start-overlay.hidden { display: none; }
+        .play-btn {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg, #00d9ff, #0099cc);
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 30px rgba(0,217,255,0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .play-btn:hover { transform: scale(1.1); box-shadow: 0 0 50px rgba(0,217,255,0.8); }
+        .play-btn::after {
+            content: ''; width: 0; height: 0;
+            border-left: 35px solid white; border-top: 20px solid transparent; border-bottom: 20px solid transparent;
+            margin-left: 8px;
+        }
+        .start-text { margin-top: 20px; font-size: 1.2rem; color: #00d9ff; }
+        .sound-hint { margin-top: 10px; font-size: 0.9rem; color: #888; }
+
+        /* Fullscreen Button */
+        .controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .control-btn {
+            padding: 10px 20px; background: #0f3460; color: #00d9ff; border: 1px solid #00d9ff;
+            border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+        }
+        .control-btn:hover { background: #00d9ff; color: #0f3460; }
+
+        /* Rotate Hint (Mobile) */
+        .rotate-hint {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000;
+            flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        .rotate-icon { font-size: 4rem; margin-bottom: 20px; animation: rotate 1.5s ease-in-out infinite; }
+        @keyframes rotate { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(90deg); } }
+
+        /* Content */
+        .content { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        h2 { color: #00d9ff; margin: 25px 0 12px; font-size: 1.4rem; }
+        p { line-height: 1.7; margin-bottom: 12px; color: #ccc; font-size: 0.95rem; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin: 15px 0; }
+        .feature { background: #16213e; padding: 15px; border-radius: 10px; border: 1px solid #0f3460; }
+        .feature h3 { color: #00d9ff; margin-bottom: 8px; font-size: 1rem; }
+        .feature p { color: #aaa; margin-bottom: 0; font-size: 0.9rem; }
+        ul { margin: 12px 0; padding-left: 20px; color: #ccc; }
+        li { margin-bottom: 6px; line-height: 1.5; font-size: 0.95rem; }
+        footer { background: #0f0f1a; color: #888; text-align: center; padding: 25px; margin-top: 40px; font-size: 0.85rem; }
+
+        /* Mobile Styles */
         @media (max-width: 768px) {
-            .game-frame { height: 400px; }
-            h1 { font-size: 1.5rem; }
+            header { padding: 12px; }
+            h1 { font-size: 1.4rem; }
+            .subtitle { font-size: 0.9rem; }
+            .game-wrapper { padding: 10px; }
+            .game-container::before { padding-top: 75%; }
+            .play-btn { width: 80px; height: 80px; }
+            .play-btn::after { border-left-width: 28px; border-top-width: 16px; border-bottom-width: 16px; margin-left: 6px; }
+            .start-text { font-size: 1rem; }
+            .content { padding: 0 15px; margin: 20px auto; }
+            h2 { font-size: 1.2rem; margin: 20px 0 10px; }
+            .features { grid-template-columns: 1fr; }
+        }
+
+        /* Landscape Mobile - Fullscreen Game */
+        @media (max-width: 900px) and (orientation: landscape) {
+            body.game-started header, body.game-started .content, body.game-started footer, body.game-started .controls { display: none; }
+            body.game-started .game-wrapper { padding: 0; max-width: 100%; }
+            body.game-started .game-container { border-radius: 0; height: 100vh; }
+            body.game-started .game-container::before { display: none; }
+            body.game-started .game-frame { position: relative; height: 100vh; }
+        }
+
+        /* Portrait Mobile - Show Rotate Hint */
+        @media (max-width: 768px) and (orientation: portrait) {
+            body.game-started .rotate-hint { display: flex; }
         }
     </style>
 </head>
 <body>
+    <!-- Rotate Hint for Mobile -->
+    <div class="rotate-hint">
+        <div class="rotate-icon">📱</div>
+        <p>Rotate your device for better experience</p>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 10px;">Or tap anywhere to continue</p>
+    </div>
+
     <header>
-        <h1>Rooftop Run</h1>
-        <p class="subtitle">Thrilling 3D Parkour Running Game</p>
+        <h1>Run 3</h1>
+        <p class="subtitle">Endless Space Running Game</p>
     </header>
 
-    <div class="game-container">
-      <iframe id="gameFrame" class="game-frame"
-  src="https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html" allowfullscreen></iframe>
-      <button onclick="document.getElementById('gameFrame').requestFullscreen()" style="display:block;margin:15px
-  auto;padding:12px
-  30px;font-size:16px;background:#00d9ff;color:#000;border:none;border-radius:8px;cursor:pointer;">FULL
-  SCREEN</button>
-  </div>
+    <div class="game-wrapper">
+        <div class="game-container">
+            <div class="start-overlay" id="startOverlay">
+                <div class="play-btn"></div>
+                <p class="start-text">Click to Play</p>
+                <p class="sound-hint">🔊 Tap to enable sound</p>
+            </div>
+            <iframe class="game-frame" id="gameFrame" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        </div>
+        <div class="controls">
+            <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+    </div>
 
     <div class="content">
-        <h2>About Rooftop Run</h2>
-        <p>Rooftop Run is an exciting parkour-style running game with stunning 3D graphics. Jump from one roof to another, navigate through challenging obstacles, and avoid enemies as you race across the city skyline. Your character runs automatically, so focus on timing your jumps and movements perfectly!</p>
+        <h2>About Run 3</h2>
+        <p>Run 3 is an exciting endless running game set in space. Navigate through tunnels floating in space, avoid holes, and keep running as long as you can. The unique gravity mechanics allow you to run on walls and ceilings!</p>
 
         <h2>Game Features</h2>
         <div class="features">
             <div class="feature">
-                <h3>3D Graphics</h3>
-                <p>Immersive 3D visuals bring the rooftop parkour experience to life with detailed environments.</p>
+                <h3>Space Tunnels</h3>
+                <p>Run through mysterious tunnels floating in outer space with stunning visuals.</p>
             </div>
             <div class="feature">
-                <h3>Auto-Run Gameplay</h3>
-                <p>Your character runs continuously - focus on jumping, sliding, and avoiding obstacles.</p>
+                <h3>Gravity Defying</h3>
+                <p>Run on walls and ceilings - gravity changes based on which surface you're on.</p>
             </div>
             <div class="feature">
-                <h3>Dynamic Obstacles</h3>
-                <p>Navigate narrow tower cranes, slide under barriers, and dive into office spaces.</p>
+                <h3>Multiple Characters</h3>
+                <p>Unlock different characters with unique abilities as you progress.</p>
             </div>
             <div class="feature">
-                <h3>Enemy Avoidance</h3>
-                <p>Watch out for orange men enemies and use zigzag patterns to escape them.</p>
+                <h3>Endless Challenge</h3>
+                <p>Randomly generated levels mean endless gameplay and new challenges.</p>
             </div>
         </div>
 
         <h2>How to Play</h2>
         <ul>
-            <li><strong>Drag:</strong> Move the camera to look around</li>
-            <li><strong>Tap/Click:</strong> Jump between rooftops</li>
-            <li><strong>Swipe Down:</strong> Slide under obstacles</li>
-            <li><strong>Timing:</strong> Perfect your jumps to land safely on the next rooftop</li>
+            <li><strong>Arrow Keys / WASD:</strong> Move left and right</li>
+            <li><strong>Space / Up Arrow:</strong> Jump</li>
+            <li><strong>R:</strong> Restart level</li>
+            <li><strong>Tip:</strong> Jump on walls to change gravity direction</li>
         </ul>
-        <p>The key to success is anticipating upcoming obstacles and timing your actions. Watch for visual cues and be ready to jump or slide at the right moment.</p>
+        <p>Avoid falling into holes! If you fall into space, you'll have to restart. Use the walls strategically to navigate around obstacles.</p>
 
-        <h2>Tips for High Scores</h2>
-        <p>Stay focused on the path ahead and use the camera controls to spot upcoming obstacles early. When encountering orange men enemies, don't panic - use zigzag movements to avoid them. Practice makes perfect in Rooftop Run, so keep playing to improve your reflexes and learn the patterns!</p>
+        <h2>Tips for Success</h2>
+        <p>Pay attention to the tunnel ahead and plan your jumps. Sometimes running on the walls or ceiling gives you a better path. Practice makes perfect - the more you play, the better you'll get at reading the tunnels!</p>
     </div>
 
     <footer>
-        <p>&copy; 2025 Rooftop Run Online. All rights reserved.</p>
+        <p>&copy; 2025 Run 3 Online. Play free browser games.</p>
     </footer>
+
+    <script>
+        const overlay = document.getElementById('startOverlay');
+        const gameFrame = document.getElementById('gameFrame');
+        const gameUrl = 'https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html';
+        const rotateHint = document.querySelector('.rotate-hint');
+
+        // Click to start game
+        overlay.addEventListener('click', function() {
+            // Load game
+            gameFrame.src = gameUrl;
+            overlay.classList.add('hidden');
+            document.body.classList.add('game-started');
+
+            // Create and play silent audio to unlock audio context
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx.resume();
+            } catch(e) {}
+        });
+
+        // Dismiss rotate hint on tap
+        rotateHint.addEventListener('click', function() {
+            rotateHint.style.display = 'none';
+        });
+
+        // Fullscreen function
+        function toggleFullscreen() {
+            const container = document.querySelector('.game-container');
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) container.requestFullscreen();
+                else if (container.webkitRequestFullscreen) container.webkitRequestFullscreen();
+                else if (container.msRequestFullscreen) container.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            if (document.body.classList.contains('game-started') && window.orientation === 0) {
+                rotateHint.style.display = 'flex';
+            } else {
+                rotateHint.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
