@@ -95,11 +95,12 @@
 
         /* Landscape Mobile - Fullscreen Game */
         @media (max-width: 900px) and (orientation: landscape) {
+            body.game-started { overflow: hidden; }
             body.game-started header, body.game-started .content, body.game-started footer, body.game-started .controls { display: none; }
-            body.game-started .game-wrapper { padding: 0; max-width: 100%; }
-            body.game-started .game-container { border-radius: 0; height: 100vh; }
+            body.game-started .game-wrapper { padding: 0; max-width: 100%; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; }
+            body.game-started .game-container { border-radius: 0; width: 100%; height: 100%; }
             body.game-started .game-container::before { display: none; }
-            body.game-started .game-frame { position: relative; height: 100vh; }
+            body.game-started .game-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         }
 
         /* Portrait Mobile - Show Rotate Hint */
@@ -184,16 +185,29 @@
 
         // Click to start game
         overlay.addEventListener('click', function() {
-            // Load game
+            // Load game immediately
             gameFrame.src = gameUrl;
             overlay.classList.add('hidden');
             document.body.classList.add('game-started');
 
-            // Create and play silent audio to unlock audio context
+            // Try to unlock audio
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 audioCtx.resume();
+                // Create a short silent sound
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.value = 0;
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
             } catch(e) {}
+
+            // On mobile, check orientation
+            if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
+                rotateHint.style.display = 'flex';
+            }
         });
 
         // Dismiss rotate hint on tap
@@ -213,14 +227,24 @@
             }
         }
 
-        // Handle orientation change
-        window.addEventListener('orientationchange', function() {
-            if (document.body.classList.contains('game-started') && window.orientation === 0) {
+        // Handle orientation change and resize
+        function checkOrientation() {
+            if (!document.body.classList.contains('game-started')) return;
+
+            const isPortrait = window.innerHeight > window.innerWidth;
+            const isMobile = window.innerWidth <= 900 || window.innerHeight <= 500;
+
+            if (isMobile && isPortrait) {
                 rotateHint.style.display = 'flex';
             } else {
                 rotateHint.style.display = 'none';
             }
+        }
+
+        window.addEventListener('orientationchange', function() {
+            setTimeout(checkOrientation, 100);
         });
+        window.addEventListener('resize', checkOrientation);
     </script>
 </body>
 </html>
