@@ -25,29 +25,6 @@
         /* Game Frame */
         .game-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* Start Overlay */
-        .start-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            cursor: pointer; z-index: 10;
-        }
-        .start-overlay.hidden { display: none; }
-        .play-btn {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: linear-gradient(135deg, #00d9ff, #0099cc);
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 0 30px rgba(0,217,255,0.5);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .play-btn:hover { transform: scale(1.1); box-shadow: 0 0 50px rgba(0,217,255,0.8); }
-        .play-btn::after {
-            content: ''; width: 0; height: 0;
-            border-left: 35px solid white; border-top: 20px solid transparent; border-bottom: 20px solid transparent;
-            margin-left: 8px;
-        }
-        .start-text { margin-top: 20px; font-size: 1.2rem; color: #00d9ff; }
-        .sound-hint { margin-top: 10px; font-size: 0.9rem; color: #888; }
 
         /* Fullscreen Button */
         .controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
@@ -77,22 +54,9 @@
             .subtitle { font-size: 0.9rem; }
             .game-wrapper { padding: 10px; }
             .game-container::before { padding-top: 75%; }
-            .play-btn { width: 80px; height: 80px; }
-            .play-btn::after { border-left-width: 28px; border-top-width: 16px; border-bottom-width: 16px; margin-left: 6px; }
-            .start-text { font-size: 1rem; }
             .content { padding: 0 15px; margin: 20px auto; }
             h2 { font-size: 1.2rem; margin: 20px 0 10px; }
             .features { grid-template-columns: 1fr; }
-        }
-
-        /* Mobile - Game Started: Hide other content */
-        @media (max-width: 900px) {
-            body.game-started header, body.game-started .content, body.game-started footer, body.game-started .controls { display: none; }
-            body.game-started { overflow: hidden; }
-            body.game-started .game-wrapper { padding: 0; max-width: 100%; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; }
-            body.game-started .game-container { border-radius: 0; width: 100%; height: 100%; }
-            body.game-started .game-container::before { display: none; }
-            body.game-started .game-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         }
     </style>
 </head>
@@ -104,12 +68,7 @@
 
     <div class="game-wrapper">
         <div class="game-container">
-            <div class="start-overlay" id="startOverlay">
-                <div class="play-btn"></div>
-                <p class="start-text">Click to Play</p>
-                <p class="sound-hint">🔊 Tap to enable sound</p>
-            </div>
-            <iframe class="game-frame" id="gameFrame" allowfullscreen allow="autoplay; fullscreen"></iframe>
+            <iframe class="game-frame" id="gameFrame" src="https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html" allowfullscreen allow="autoplay; fullscreen"></iframe>
         </div>
         <div class="controls">
             <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
@@ -158,17 +117,6 @@
     </footer>
 
     <script>
-        const overlay = document.getElementById('startOverlay');
-        const gameFrame = document.getElementById('gameFrame');
-        const gameUrl = 'https://cloud.onlinegames.io/games/2025/more/run-3/index-og.html';
-
-        // Click to start game
-        overlay.addEventListener('click', function() {
-            gameFrame.src = gameUrl;
-            overlay.classList.add('hidden');
-            document.body.classList.add('game-started');
-        });
-
         // Fullscreen function
         function toggleFullscreen() {
             const container = document.querySelector('.game-container');
